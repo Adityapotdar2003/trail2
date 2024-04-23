@@ -1,0 +1,44 @@
+#define trigPin 23 // GPIO23
+#define echoPin 22 // GPIO22
+int ledPin = 26; // Connect the LED to pin 26
+
+int duration, distance;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+}
+
+void loop() {
+  // Trigger ultrasonic measurement
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration / 2) / 29.1;
+
+  // Provide distance feedback and control LED
+  if (distance > 0 && distance <= 250) {
+    // Object detected within valid range
+    Serial.print("Object detected at a distance: ");
+    Serial.println(distance);
+    if (distance <= 110) {
+      // Object detected at a closer range
+      Serial.println("Close range");
+      analogWrite(ledPin, 255); // Full brightness LED for close proximity
+    } else {
+      // Object detected at a moderate distance
+      Serial.println("Moderate range");
+      analogWrite(ledPin, 128); // Dim LED for moderate distance
+    }
+  } else {
+    // No object detected or out of range
+    Serial.print("No object detected. Distance: ");
+    Serial.println(distance);
+    digitalWrite(ledPin, LOW); // Turn LED off
+  }
+
+  delay(500); // Delay to stabilize readings
+}
